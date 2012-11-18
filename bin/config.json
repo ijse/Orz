@@ -1,0 +1,9 @@
+{
+	"manual": "./help.txt",
+	"commands": {
+		"minjs": {
+			"path": "./commands/minjs",
+			"manual": "./commands/minjs/help"
+		}
+	}
+}

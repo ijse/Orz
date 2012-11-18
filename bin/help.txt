@@ -1,0 +1,13 @@
+Orz Tool Coolection
+===================
+
+Usage:
+	orz [command] arg1 arg2 ...
+
+	orz help [command]
+
+Commands: 
+	minjs
+
+Author:
+	ijse

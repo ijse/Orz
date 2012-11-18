@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+
+// -*- js -*-
+// @author ijse
+var os = require('os');
+var fs = require('fs');
+var path = require('path');
+
+var config = require(__dirname + "/config.json");
+var args = process.argv;
+
+// TODO: Command Dispatcher
+var cmd = args[2];
+cmd = cmd && cmd.toLowerCase();
+
+switch (cmd) {
+case undefined:
+case "help":
+case "/?":
+case "\\?":
+case "--help":
+	showHelp(args[3]);
+	break;
+
+default:
+	handle(cmd);
+}
+
+return;
+
+
+/**
+ * Function: handle
+ *
+ * 调用执行工具程序
+ *
+ * Parameters:
+ *
+ *   cmd - [type/description]
+ *
+ * Returns:
+ *
+ *   return description
+ */
+
+function handle(cmd) {
+	var worker = require(__dirname + "/commands/" + cmd);
+	if (!worker) {
+		//TODO show help
+		return;
+	}
+	worker.invoke.apply(worker, args.slice(3));
+}
+
+
+// TODO: Logging
+
+
+// TODO: Show manuals
+function showHelp(target) {
+	var helpText;
+	if (!target) {
+		// Show help of orz
+		helpText = fs.readFileSync(__dirname + "/help.txt", "utf8");
+	} else {
+		// Show help of target
+		helpText = fs.readFileSync(__dirname + "/commands/" + target + "/help.txt", "utf8");
+	}
+	console.log(helpText);
+}

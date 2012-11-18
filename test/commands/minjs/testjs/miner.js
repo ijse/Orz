@@ -1,0 +1,2 @@
+/*-- MinJS at Sat Nov 17 2012 19:15:02 GMT+0800 (中国标准时间) --*/
+function minBuildInOne(e,t){var n=[],r="",i="";if(e.length>0)for(var s=0,o=e.length;s<o;s++)r=fs.readFileSync(e[s],"utf8"),i=jsp.parse(r),i=pro.ast_mangle(i),i=pro.ast_squeeze(i),n.push(pro.gen_code(i),";");console.log("---"),fs.writeFileSync(t,stamp+n.join(""),"utf8")}var fs=require("fs"),jsp=require("uglify-js").parser,pro=require("uglify-js").uglify,stamp="/*-- MinJS --*/\n";exports.min=minBuildInOne;
