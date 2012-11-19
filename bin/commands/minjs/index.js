@@ -5,8 +5,9 @@ var _ = require('underscore');
 
 var jsp = require("uglify-js").parser;
 var pro = require("uglify-js").uglify;
-var stamp = "/*-- MinJS at " + new Date().toString() + " --*/\n";
+var stamp = "/*-- MinJS at [" + new Date().toString() + "] --*/\n";
 
+var ProcessStack = [];
 /**
  * Function: invoke
  *
@@ -21,6 +22,8 @@ exports.invoke = function () {
 	var folder = path.normalize(config.src);
 	procFolder(folder, config);
 };
+
+// TODO: Clean dist files
 
 
 /**
@@ -69,12 +72,37 @@ function init() {
  *   return description
  */
 
-function procFolder(folder, cfg) {
-	// var files = fs.readdirSync(folder).filter(function(file) {
-	//	// Only keep the .js files
-	//	return file.substr(-3) === '.js';
-	// });
-	var files = fs.readdirSync(folder);
+function procFolder(folder, _cfg) {
+	var cfg = _.clone(_cfg);
+
+	//TODO: Get ./config.js if has, apply the specify configuration
+	var specConfigPath = path.join(folder, "./config.js");
+	if(fs.existsSync(specConfigPath)) {
+		var tpath = path.relative(__dirname, specConfigPath);
+		var specConfig = require(tpath);
+		cfg = _.extend(cfg, specConfig);
+	}
+
+	var files = fs.readdirSync(folder).filter(function(file) {
+		var i=0, it;
+		// Filter off files
+		if(cfg.includes.length) {
+			do {
+				it = cfg.includes[i];
+				console.log("it...>>>", it, file);
+				if(it && it.test(file)) {
+					console.log("\n\n$$$\n\n");
+					return true;
+				}
+				++i;
+			} while(it);
+			return false;
+		} else {
+			// includes all
+			return true;
+		}
+	});
+
 	_.each(files, function (item, index, list) {
 		var exit_flag = false;
 		var file = path.join(folder, item);
@@ -143,9 +171,46 @@ function procFile(item, cfg) {
 		fs.renameSync(distFile, srcFile);
 	}
 
-	// Start
-	console.log("正在处理：", srcFile, "==>", distFile);
-	minBuildInOne([srcFile], distFile, cfg.uglifyOptions);
+	// Add file include function
+	// 1. Get configuration in file
+	// 2. Add included file to list
+	var srcList = [srcFile];
+	var fileCtn = fs.readFileSync(srcFile, "utf8");
+	try {
+		var conf = /\/\*:\)([\w\W]*?)\*\//m.exec(fileCtn)[1];
+		conf = JSON.parse(conf);
+		conf.include = conf.include.reverse();
+
+		// Included files
+		_.each(conf.include, function(item, index) {
+			conf.include[index] = path.join(dirName, item);
+		});
+		srcList = conf.include.concat(srcList);
+
+		// UglifyOptions
+		cfg.uglifyOptions = _.extend(cfg.uglifyOptions, {
+			defines: conf.defines
+		});
+
+	} catch(e) {
+		// console.log(e);
+	}
+
+	// TODO: add stack support
+	// ProcessStack.push(function() {
+		// Start
+		console.log("正在处理：", srcList, "==>", distFile);
+		minBuildInOne(srcList, distFile, cfg.uglifyOptions);
+	// });
+}
+
+// TODO: clean up files
+function clean() {
+
+}
+
+function popStack() {
+
 }
 
 
@@ -172,10 +237,13 @@ function minBuildInOne(fileIn, fileOut, cfg) {
 	if (fileIn.length > 0) {
 		for (var i = 0, len = fileIn.length; i < len; i++) {
 			origCode = fs.readFileSync(fileIn[i], 'utf8');
+			// parse code and get the initial AST
 			ast = jsp.parse(origCode, cfg.strict_semicolons);
+			// get a new AST with mangled names
 			ast = pro.ast_mangle(ast, cfg);
+			// get an AST with compression optimizations
 			ast = pro.ast_squeeze(ast, cfg);
-
+			// compressed code
 			finalCode.push(pro.gen_code(ast, cfg), ';');
 		}
 	}

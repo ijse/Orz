@@ -1,9 +1,7 @@
 module.exports = {
-	src: "../test/commands/minjs/testjs",
+	// src: "../test/commands/minjs/testjs",
 	excludes: [/config.js/],
-	includes: [
-
-	],
+	includes: [],
 
 	uglifyOptions: {
 		

@@ -1,3 +1,15 @@
+/*//:)
+{
+    "include": [ "./aaa.js" ],
+    "defines": {
+        "TEST": [ "string", "hahasdfasdfsada" ]
+    }
+}
+*/
+
+var a = TEST;
+var ptext = "/*{include ./hello.txt}*/";
+
 var fs  = require('fs');
 var jsp = require("uglify-js").parser;
 var pro = require("uglify-js").uglify;
@@ -24,6 +36,6 @@ function minBuildInOne(fileIn, fileOut) {
     fs.writeFileSync(fileOut, stamp + finalCode.join(''), 'utf8');
 }
 
-exports.min = minBuildInOne
+exports.min = minBuildInOne;
 
 
