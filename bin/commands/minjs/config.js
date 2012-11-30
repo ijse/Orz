@@ -4,7 +4,7 @@ module.exports = {
 	includes: [],
 
 	uglifyOptions: {
-		
+
 		// If you pass true then the parser will throw an error
 		// when it expects a semicolon and it doesn’t find it.
 		// For most JS code you don’t want that,

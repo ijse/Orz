@@ -7,4 +7,4 @@ function minBuildInOne(e, t) {
 
 var a = TEST, ptext = "/*{include ./hello.txt}*/", fs = require("fs"), jsp = require("uglify-js").parser, pro = require("uglify-js").uglify, stamp = "/*-- MinJS --*/\n";
 
-exports.min = minBuildInOne;;
+exports.min = minBuildInOne;

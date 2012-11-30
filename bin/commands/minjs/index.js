@@ -75,7 +75,7 @@ function init() {
 function procFolder(folder, _cfg) {
 	var cfg = _.clone(_cfg);
 
-	//TODO: Get ./config.js if has, apply the specify configuration
+	//Get ./config.js if has, apply the specify configuration
 	var specConfigPath = path.join(folder, "./config.js");
 	if(fs.existsSync(specConfigPath)) {
 		var tpath = path.relative(__dirname, specConfigPath);
@@ -171,19 +171,38 @@ function procFile(item, cfg) {
 		fs.renameSync(distFile, srcFile);
 	}
 
-	// Add file include function
-	// 1. Get configuration in file
-	// 2. Add included file to list
+	var srcList = analyzeDependency(srcFile);
+
+	// Start
+	console.log("正在处理：", srcList, "==>", distFile);
+	minBuildInOne(srcList, distFile, cfg.uglifyOptions);
+}
+
+
+// Add file include function
+// 1. Get configuration in file
+// 2. Add included file to list
+function analyzeDependency(srcFile, list) {
 	var srcList = [srcFile];
 	var fileCtn = fs.readFileSync(srcFile, "utf8");
 	try {
+		// Get configuration json in file
 		var conf = /\/\*:\)([\w\W]*?)\*\//m.exec(fileCtn)[1];
 		conf = JSON.parse(conf);
 		conf.include = conf.include.reverse();
 
 		// Included files
 		_.each(conf.include, function(item, index) {
-			conf.include[index] = path.join(dirName, item);
+			var targetFile;
+			// Add .debug.js to file name
+			item.replace(/.js$/, ".debug.js");
+			
+			targetFile = path.join(dirName, item);
+			//TODO: Multi-include files
+
+			conf.include.concat(targetList);
+
+			// conf.include[index] = path.join(dirName, item);
 		});
 		srcList = conf.include.concat(srcList);
 
@@ -196,23 +215,8 @@ function procFile(item, cfg) {
 		// console.log(e);
 	}
 
-	// TODO: add stack support
-	// ProcessStack.push(function() {
-		// Start
-		console.log("正在处理：", srcList, "==>", distFile);
-		minBuildInOne(srcList, distFile, cfg.uglifyOptions);
-	// });
+	return srcList;
 }
-
-// TODO: clean up files
-function clean() {
-
-}
-
-function popStack() {
-
-}
-
 
 /**
  * Function: minBuildInOne

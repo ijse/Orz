@@ -49,7 +49,7 @@ function handle(cmd) {
 		//TODO show help
 		return;
 	}
-	worker.invoke.apply(worker, args.slice(3));
+	worker.invoke.apply(worker, [process.cwd()].concat(args.slice(3)));
 }
 
 
