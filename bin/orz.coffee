@@ -7,6 +7,17 @@
 [os, fs, path] = [require('os'), require('fs'), require('path')]
 [config, args] = [require("#{process.pwd()}/config.json"), process.argv]
 
+#TODO: use commander
+program = require "commander"
+program
+  .version('0.0.1')
+  .option("-h, --help")
+  .option('-p, --port <port>', 'specify the port [3000]', Number, 3000)
+  .parse(process.argv);
+
+###############################
+
+
 cmd = args?[2]?.toLowerCase()
 
 switch cmd
