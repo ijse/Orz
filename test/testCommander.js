@@ -1,22 +1,30 @@
 
 var program = require("commander");
 
+function range(val) {
+  return val.split('..').map(Number);
+}
+
+function list(val) {
+  return val.split(',');
+}
 program
   .version('0.0.1')
-  .option("-s, --x [ss]", "sssssss")
-  .option('-p, --port <port>', 'specify the port [3000]', Number, 3000)
-  .option('-H, --hidden', 'enable hidden file serving')
-  .option('-I, --no-icons', 'disable file icons')
-  .option('-L, --no-logs', 'disable request logging');
+  .usage('[options] <file ...>')
+  .option('-i, --integer <n>', 'An integer argument', parseInt)
+  .option('-f, --float <n>', 'A float argument', parseFloat)
+  .option('-r, --range <a>..<b>', 'A range', range)
+  .option('-l, --list <items>', 'A list', list)
+  .option('-o, --optional [value]', 'An optional value')
+  .option("-c, --config [config_file_path]", "The config file", "./config.json")
+  .parse(process.argv);
 
-  // $ deploy setup stage
-  // $ deploy setup
-  program
-    .command('setup')
-    .option("-s, --x [ss]", "sssssss")
-    .description('run setup commands for all envs')
-    .action(function(env){
-		console.log(env.parent.x );
-    });
+console.log(' int: %j', program.integer);
+console.log(' float: %j', program.float);
+console.log(' optional: %j', program.optional);
+program.range = program.range || [];
+console.log(' range: %j..%j', program.range[0], program.range[1]);
+console.log(' list: %j', program.list);
+console.log(' args: %j', program.args);
 
-program.parse(process.argv);
+console.log(' Config: %j', program.config);

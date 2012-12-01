@@ -1,42 +1,40 @@
-`#!/usr/bin/env node`
+#!/usr/bin/env node
 ###
 	orz main
 	@author ijse
 ###
 
 [os, fs, path] = [require('os'), require('fs'), require('path')]
-[config, args] = [require("#{process.pwd()}/config.json"), process.argv]
+[config, args] = [require("./config.json"), process.argv]
 
 #TODO: use commander
 program = require "commander"
+
+# Prepare program
 program
   .version('0.0.1')
   .option("-h, --help")
-  .option('-p, --port <port>', 'specify the port [3000]', Number, 3000)
-  .parse(process.argv);
 
 ###############################
 
 
 cmd = args?[2]?.toLowerCase()
 
-switch cmd
-	when undefined, "help", "/?", "\\?", "--help" then showHelp args[3]
-	else handle cmd
-
 # Dispatcher to invoke command
 handle = (cmd) ->
-	worker = require "#{process.pwd()}/commands/#{cmd}"
+	worker = require "./commands/#{cmd}"
 	return if not worker
-	worker.invoke.apply(worker, [Printer, process.cwd(), formatArgs(args.slice 3)])
+	worker.invoke.call worker, program
+	# worker.invoke.apply(worker, [Printer, process.cwd(), formatArgs(args.slice 3), program])
+	# worker.invoke.call worker, Printer, process.cwd(), program
 
 # Show manual
 showHelp = (target) ->
 	cwd = process.cwd()
 	if not target
-		helpText = fs.readFileSync "#{cwd}/readme.md", "utf8"
+		helpText = fs.readFileSync "./readme.md", "utf8"
 	else
-		helpText = fs.readFileSync "#{cwd}/commands/#{target}/readme.md", "utf8"
+		helpText = fs.readFileSync "./commands/#{target}/readme.md", "utf8"
 	Printer helpText
 
 # Print to console or else
@@ -56,3 +54,21 @@ formatArgs = (args)->
 		else
 			opt[lastKey] = a if opt[lastKey] else opt[lastKey].push(a)
 	opt
+
+
+###
+	Dispatch
+###
+switch cmd
+	when undefined, "help", "/?", "\\?", "--help" then showHelp args[3]
+	else
+		if config?.commands?[cmd]?
+			handle cmd
+			process.exit(0)
+		else
+			#TODO: Print no this command
+			Printer """
+				ERROR: There is not command #{cmd}!
+				  Please type `orz help` for more info!
+			"""
+			process.exit(1)
