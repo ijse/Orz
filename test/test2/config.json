@@ -1,4 +1,4 @@
 {
-	"oldStr": "<title>.*</title>",
-	"newStr": "<title>888888888</title>"
+	"oldStr": "(?=</body>)",
+	"newStr": "www"
 }

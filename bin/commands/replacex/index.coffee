@@ -53,10 +53,11 @@ exports.invoke = (program)->
 		Config = require configPath
 
 	# merge config
-	_.extend(Config, include: program.include) if program.include
-	_.extend(Config, exclude: program.exclude) if program.exclude
-	_.extend(Config, newStr: program.newStr) if program.newStr
-	_.extend(Config, oldStr: program.oldStr) if program.oldStr
+	_.extend(Config, include: program.include or [])
+	_.extend(Config, exclude: program.exclude or [])
+	_.extend(Config, newStr: program.newStr or "")
+	_.extend(Config, oldStr: program.oldStr or "")
+
 
 	console.log "Final configuration: ", Config
 

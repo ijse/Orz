@@ -36,26 +36,18 @@
       configPath = path.join(Cwd, program.config);
       Config = require(configPath);
     }
-    if (program.include) {
-      _.extend(Config, {
-        include: program.include
-      });
-    }
-    if (program.exclude) {
-      _.extend(Config, {
-        exclude: program.exclude
-      });
-    }
-    if (program.newStr) {
-      _.extend(Config, {
-        newStr: program.newStr
-      });
-    }
-    if (program.oldStr) {
-      _.extend(Config, {
-        oldStr: program.oldStr
-      });
-    }
+    _.extend(Config, {
+      include: program.include || []
+    });
+    _.extend(Config, {
+      exclude: program.exclude || []
+    });
+    _.extend(Config, {
+      newStr: program.newStr || ""
+    });
+    _.extend(Config, {
+      oldStr: program.oldStr || ""
+    });
     console.log("Final configuration: ", Config);
     fileList = FilterUtil.getFileList(Target, Config);
     console.log("File to process:");
